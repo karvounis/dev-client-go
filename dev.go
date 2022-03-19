@@ -23,20 +23,30 @@ type Client struct {
 	Token   string
 }
 
-func NewClient(token string) (*Client, error) {
-	u, err := url.Parse(BASE_URL)
+type Options struct {
+	Host  string
+	Token string
+}
+
+func NewClient(options Options) (*Client, error) {
+	host := BASE_URL
+	if options.Host != "" {
+		host = options.Host
+	}
+
+	u, err := url.Parse(host)
 	if err != nil {
 		return nil, err
 	}
 
-	if token == "" {
+	if options.Token == "" {
 		return nil, errors.New("invalid token")
 	}
 
 	c := &Client{
 		Client:  http.DefaultClient,
 		BaseUrl: u,
-		Token:   token,
+		Token:   options.Token,
 	}
 
 	return c, nil
@@ -46,10 +56,7 @@ func NewTestClient() (*Client, error) {
 	if err := godotenv.Load(); err != nil {
 		return nil, err
 	}
-
-	token := os.Getenv("DEV_API_KEY")
-
-	return NewClient(token)
+	return NewClient(Options{Host: os.Getenv("DEV_HOST"), Token: os.Getenv("DEV_API_KEY")})
 }
 
 func (c *Client) NewRequest(ctx context.Context, method, path string, payload interface{}) (*http.Request, error) {

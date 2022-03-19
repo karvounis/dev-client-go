@@ -162,7 +162,7 @@ func (c *Client) GetPublishedArticlesSorted(q ArticleQueryParams) ([]Article, er
 		return nil, err
 	}
 
-	path := fmt.Sprintf("/articles?%s", query.Encode())
+	path := fmt.Sprintf("/articles/latest?%s", query.Encode())
 
 	req, err := c.NewRequest(context.Background(), "GET", path, nil)
 	if err != nil {

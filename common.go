@@ -20,12 +20,6 @@ func (d *DevAPIError) Error() string {
 	return fmt.Sprintf("%s: %d", d.msg, d.code)
 }
 
-func assertError(err error) bool {
-	t := fmt.Sprintf("%T", err)
-
-	return t == "*dev.DevAPIError"
-}
-
 func extractDevError(resp *http.Response) error {
 	var v map[string]interface{}
 
