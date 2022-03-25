@@ -25,6 +25,7 @@ type Article struct {
 	URL                    string           `json:"url"`
 	CanonicalURL           string           `json:"canonical_url"`
 	CommentsCount          int32            `json:"comments_count"`
+	PageViewsCount         int32            `json:"page_views_count"`
 	PositiveReactionsCount int32            `json:"positive_reactions_count"`
 	PublicReactionsCount   int32            `json:"public_reactions_count"`
 	CreatedAt              string           `json:"created_at"`
