@@ -12,7 +12,7 @@ import (
 
 func TestGetPublishedArticles(t *testing.T) {
 	c, err := NewTestClient()
-	assert.NoErrorf(t, err, "Failed to create TestClient: %w", err)
+	assert.NoError(t, err, "Failed to create TestClient")
 
 	t.Run("page limit", func(t *testing.T) {
 		if os.Getenv("TEST_SKIP") != "" {
@@ -52,7 +52,7 @@ func TestLifecycleUnpublishedArticle(t *testing.T) {
 		t.Skip()
 	}
 	c, err := NewTestClient()
-	assert.NoErrorf(t, err, "Failed to create TestClient: %w", err)
+	assert.NoError(t, err, "Failed to create TestClient")
 
 	gofakeit.Seed(time.Now().UnixNano())
 
@@ -94,7 +94,7 @@ func TestLifecyclePublishedArticle(t *testing.T) {
 	assert.NotEmpty(t, username)
 
 	c, err := NewTestClient()
-	assert.NoErrorf(t, err, "Failed to create TestClient: %w", err)
+	assert.NoError(t, err, "Failed to create TestClient")
 
 	gofakeit.Seed(time.Now().UnixNano())
 
@@ -130,7 +130,7 @@ func TestLifecyclePublishedArticle(t *testing.T) {
 
 func TestGetPublishedArticlesSorted(t *testing.T) {
 	c, err := NewTestClient()
-	assert.NoErrorf(t, err, "Failed to create TestClient: %w", err)
+	assert.NoError(t, err, "Failed to create TestClient")
 
 	articles, err := c.GetPublishedArticlesSorted(ArticleQueryParams{Page: 1, PerPage: 10})
 	assert.NoErrorf(t, err, "Error fetching articles: %w", err)
@@ -146,7 +146,7 @@ func TestGetPublishedArticlesSorted(t *testing.T) {
 
 func TestGetUserArticles(t *testing.T) {
 	c, err := NewTestClient()
-	assert.NoErrorf(t, err, "Failed to create TestClient: %w", err)
+	assert.NoError(t, err, "Failed to create TestClient")
 
 	username := os.Getenv("TEST_USERNAME")
 	assert.NotEmpty(t, username)
@@ -161,7 +161,7 @@ func TestGetUserArticles(t *testing.T) {
 
 func TestGetUserPublishedArticles(t *testing.T) {
 	c, err := NewTestClient()
-	assert.NoErrorf(t, err, "Failed to create TestClient: %w", err)
+	assert.NoError(t, err, "Failed to create TestClient")
 
 	username := os.Getenv("TEST_USERNAME")
 	assert.NotEmpty(t, username)
@@ -176,7 +176,7 @@ func TestGetUserPublishedArticles(t *testing.T) {
 
 func TestGetUserUnPublishedArticles(t *testing.T) {
 	c, err := NewTestClient()
-	assert.NoErrorf(t, err, "Failed to create TestClient: %w", err)
+	assert.NoError(t, err, "Failed to create TestClient")
 
 	articles, err := c.GetUserUnPublishedArticles(ArticleQueryParams{Page: 1, PerPage: 5})
 	assert.NoErrorf(t, err, "Error fetching articles: %w", err)
@@ -190,7 +190,7 @@ func TestGetUserUnPublishedArticles(t *testing.T) {
 
 func TestGetArticlesWithVideo(t *testing.T) {
 	c, err := NewTestClient()
-	assert.NoErrorf(t, err, "Failed to create TestClient: %w", err)
+	assert.NoError(t, err, "Failed to create TestClient")
 
 	articles, err := c.GetArticlesWithVideo(ArticleQueryParams{Page: 1, PerPage: 5})
 	assert.NoErrorf(t, err, "Error fetching articles: %w", err)
