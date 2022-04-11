@@ -4,104 +4,118 @@ import (
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetPublishedListings(t *testing.T) {
 	c, err := NewTestClient()
-	if err != nil {
-		t.Errorf("Failed to create TestClient: %s", err.Error())
-	}
+	assert.NoError(t, err, "Failed to create TestClient")
 
-	listings, err := c.GetPublishedListings(
-		ListingQueryParams{
-			PerPage:  5,
-			Category: "cfp",
-		},
-	)
-
-	if err != nil {
-		t.Errorf("Error fetching articles: %s", err.Error())
-	}
-
-	if listings[0].TypeOf != "listing" {
-		t.Errorf("Expected field 'type_of' to be 'listing', got '%s'", listings[0].TypeOf)
-	}
-
-	if listings[0].Category != "cfp" {
-		t.Errorf("Expected field 'category' to be 'cfp', got '%s'", listings[0].Category)
-	}
-}
-
-// NOTE: this test is failing
-func TestCreateListing(t *testing.T) {
-	t.Skip()
-	c, err := NewTestClient()
-	if err != nil {
-		t.Errorf("Failed to create TestClient: %s", err.Error())
-	}
-
-	payload := ListingBodySchema{}
-	payload.Listing.Title = "ACME Conference"
-	payload.Listing.BodyMarkdown = "Awesome conference, come join us!"
-	payload.Listing.Category = ListingCategoryCfp
-	payload.Listing.Tags = []string{"events"}
-
-	listing, err := c.CreateListing(payload, nil)
-	if err != nil {
-		t.Errorf("Error creating listing: %s", err.Error())
-	}
-
-	if listing.TypeOf != "listing" {
-		t.Errorf("Expected 'type_of' field to be 'listing', got '%s'", listing.TypeOf)
-	}
+	listings, err := c.GetPublishedListings(ListingQueryParams{PerPage: 5, Category: "cfp"})
+	assert.NoError(t, err, "Error fetching articles")
+	assert.Equalf(t, "listing", listings[0].TypeOf, "Expected field 'type_of' to be 'listing', got '%s'", listings[0].TypeOf)
+	assert.Equalf(t, ListingCategoryCfp, listings[0].Category, "Expected field 'category' to be 'cfp', got '%s'", listings[0].Category)
 }
 
 func TestGetPublishedListingsByCategory(t *testing.T) {
 	c, err := NewTestClient()
-	if err != nil {
-		t.Errorf("Failed to create TestClient: %s", err.Error())
-	}
+	assert.NoError(t, err, "Failed to create TestClient")
 
-	listings, err := c.GetPublishedListingsByCategory(
-		"cfp",
-		ListingQueryParams{
-			PerPage: 5,
-		},
-	)
-
-	if err != nil {
-		t.Errorf("Error fetching articles: %s", err.Error())
-	}
+	listings, err := c.GetPublishedListingsByCategory("cfp", ListingQueryParams{PerPage: 5})
+	assert.NoError(t, err, "Error fetching articles")
 
 	for _, v := range listings {
-		if v.Category != "cfp" {
-			t.Errorf("Expected catrgory to be 'cfp', instead got '%s'", v.Category)
-		}
+		assert.Equalf(t, ListingCategoryCfp, v.Category, "Expected catrgory to be 'cfp', instead got '%s'", v.Category)
 	}
 }
 
-func TestGetListingByID(t *testing.T) {
-	t.Skip()
-
+func TestCreateListing_published(t *testing.T) {
+	if os.Getenv("TEST_SKIP") != "" {
+		t.Skip()
+	}
 	c, err := NewTestClient()
-	if err != nil {
-		t.Errorf("Failed to create TestClient: %s", err.Error())
+	assert.NoError(t, err, "Failed to create TestClient")
+
+	title := gofakeit.Sentence(3)
+	markdownCreate := gofakeit.Paragraph(1, 2, 5, "\n")
+	category := ListingCategoryCfp
+	tags := []string{"python", "linux"}
+
+	payload := ListingBodySchema{}
+	payload.Listing.Title = title
+	payload.Listing.BodyMarkdown = markdownCreate
+	payload.Listing.Category = category
+	payload.Listing.Tags = tags
+
+	listingCreateResp, err := c.CreateListing(payload, nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, listingCreateResp)
+	assert.Equal(t, "listing", listingCreateResp.TypeOf)
+	assert.Equal(t, title, listingCreateResp.Title)
+	assert.Equal(t, markdownCreate, listingCreateResp.BodyMarkdown)
+	assert.Equal(t, category, listingCreateResp.Category)
+	assert.Equal(t, len(tags), len(listingCreateResp.Tags))
+	assert.NotEmpty(t, listingCreateResp.CreatedAt)
+	assert.True(t, listingCreateResp.Published)
+	assert.NotNil(t, listingCreateResp.User)
+
+	listingReadResp, err := c.GetListingByID(strconv.Itoa(int(listingCreateResp.ID)))
+	assert.NoError(t, err)
+	assert.NotNil(t, listingReadResp)
+	assert.EqualValues(t, listingCreateResp.ID, listingReadResp.ID)
+	assert.Equal(t, "listing", listingReadResp.TypeOf)
+	assert.Equal(t, title, listingReadResp.Title)
+	assert.EqualValues(t, markdownCreate, listingReadResp.BodyMarkdown)
+	assert.Equal(t, category, listingReadResp.Category)
+	assert.Equal(t, len(tags), len(listingReadResp.Tags))
+	assert.NotEmpty(t, listingReadResp.CreatedAt)
+	assert.True(t, listingReadResp.Published)
+	assert.NotNil(t, listingReadResp.User)
+}
+
+func TestCreateListing_draft(t *testing.T) {
+	if os.Getenv("TEST_SKIP") != "" {
+		t.Skip()
 	}
+	c, err := NewTestClient()
+	assert.NoError(t, err, "Failed to create TestClient")
 
-	listingID := os.Getenv("TEST_LISTING_ID")
+	title := gofakeit.Sentence(3)
+	markdownCreate := gofakeit.Paragraph(1, 2, 5, "\n")
+	category := ListingCategoryCfp
+	tags := []string{"python"}
 
-	listing, err := c.GetListingByID(listingID)
+	payload := ListingBodySchema{}
+	payload.Listing.Title = title
+	payload.Listing.BodyMarkdown = markdownCreate
+	payload.Listing.Category = category
+	payload.Listing.Tags = tags
+	payload.Listing.Action = "draft"
 
-	if err != nil {
-		t.Errorf("Error fetching articles: %s", err.Error())
-	}
+	listingCreateResp, err := c.CreateListing(payload, nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, listingCreateResp)
+	assert.Equal(t, "listing", listingCreateResp.TypeOf)
+	assert.Equal(t, title, listingCreateResp.Title)
+	assert.Equal(t, markdownCreate, listingCreateResp.BodyMarkdown)
+	assert.Equal(t, category, listingCreateResp.Category)
+	assert.Equal(t, len(tags), len(listingCreateResp.Tags))
+	assert.NotEmpty(t, listingCreateResp.CreatedAt)
+	assert.False(t, listingCreateResp.Published)
+	assert.NotNil(t, listingCreateResp.User)
 
-	listingIDInt, err := strconv.Atoi(listingID)
-	if err != nil {
-		t.Errorf("Error converting listingID to int: %s", err.Error())
-	}
-
-	if listing.ID != int64(listingIDInt) {
-		t.Errorf("Expected result to be a listing with id: '%s', instead got '%d'", listingID, listing.ID)
-	}
+	listingReadResp, err := c.GetListingByID(strconv.Itoa(int(listingCreateResp.ID)))
+	assert.NoError(t, err)
+	assert.NotNil(t, listingReadResp)
+	assert.EqualValues(t, listingCreateResp.ID, listingReadResp.ID)
+	assert.Equal(t, "listing", listingReadResp.TypeOf)
+	assert.Equal(t, title, listingReadResp.Title)
+	assert.EqualValues(t, markdownCreate, listingReadResp.BodyMarkdown)
+	assert.Equal(t, category, listingReadResp.Category)
+	assert.Equal(t, len(tags), len(listingReadResp.Tags))
+	assert.NotEmpty(t, listingReadResp.CreatedAt)
+	assert.False(t, listingReadResp.Published)
+	assert.NotNil(t, listingReadResp.User)
 }

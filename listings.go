@@ -18,6 +18,7 @@ type Listing struct {
 	Category      ListingCategory `json:"category"`
 	ProcessedHTML string          `json:"processed_html"`
 	Published     bool            `json:"published"`
+	CreatedAt     string          `json:"created_at"`
 	User          *User           `json:"user"`
 	Organization  *Organization   `json:"organization"`
 }
@@ -32,7 +33,7 @@ type ListingBodySchema struct {
 		ExpiresAt         string          `json:"expires_at"`
 		ContactViaConnect bool            `json:"contact_via_connect"`
 		Location          string          `json:"location"`
-		OrganizationID    int64           `json:"organization_id"`
+		OrganizationID    int64           `json:"organization_id,omitempty"`
 		Action            Action          `json:"action"`
 	} `json:"listing"`
 }
