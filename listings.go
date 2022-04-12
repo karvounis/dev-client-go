@@ -57,10 +57,10 @@ const (
 type Action string
 
 const (
-	Draft     = Action("draft")
-	Bump      = Action("bump")
-	Publish   = Action("publish")
-	Unpublish = Action("unpublish")
+	ActionDraft     = Action("draft")
+	ActionBump      = Action("bump")
+	ActionPublish   = Action("publish")
+	ActionUnpublish = Action("unpublish")
 )
 
 type ListingQueryParams struct {

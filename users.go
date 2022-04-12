@@ -31,10 +31,10 @@ type UserQueryParams struct {
 type ReadingListStatus string
 
 const (
-	Valid        ReadingListStatus = "valid"
-	InvalidValid ReadingListStatus = "invalid"
-	Confirmed    ReadingListStatus = "confirmed"
-	Archived     ReadingListStatus = "archived"
+	ReadingListStatusValid        ReadingListStatus = "valid"
+	ReadingListStatusInvalidValid ReadingListStatus = "invalid"
+	ReadingListStatusConfirmed    ReadingListStatus = "confirmed"
+	ReadingListStatusArchived     ReadingListStatus = "archived"
 )
 
 type ReadingList struct {

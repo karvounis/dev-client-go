@@ -92,7 +92,7 @@ func TestCreateListing_draft(t *testing.T) {
 	payload.Listing.BodyMarkdown = markdownCreate
 	payload.Listing.Category = category
 	payload.Listing.Tags = tags
-	payload.Listing.Action = "draft"
+	payload.Listing.Action = ActionDraft
 
 	listingCreateResp, err := c.CreateListing(payload, nil)
 	assert.NoError(t, err)
