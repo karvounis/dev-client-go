@@ -57,6 +57,7 @@ const (
 type Action string
 
 const (
+	Draft     = Action("draft")
 	Bump      = Action("bump")
 	Publish   = Action("publish")
 	Unpublish = Action("unpublish")
